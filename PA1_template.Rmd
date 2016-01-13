@@ -7,19 +7,57 @@ output:
 
 
 ## Loading and preprocessing the data
+```{r loaddata, echo=TRUE}
+setwd("C:/EMC/Education/Data_Science/Reproducible Research/Project1")
+unzip("./RepData_PeerAssessment1/activity.zip",exdir = "./RepData_PeerAssessment1") 
+activities <- read.csv("./RepData_PeerAssessment1/activity.csv", header = TRUE, na.strings="NA")
+```
 
+## Question 1: What is mean total number of steps taken per day?
+```{r histogram, echo=TRUE}
+#install.packages("dplyr")
+library(dplyr)
+days <- group_by(activities, date)
+Summa <- summarize(days, steps = sum(steps, na.rm=TRUE))
+Summa$daynum <- as.numeric(Summa$date)
+barplot(Summa$steps, Summa$daynum, names.arg= Summa$daynum, ylab="Total steps number per day", xlab="day number")
+summary(Summa)
+```
+Mean total number of steps taken per day is 9354;
+Median total number of steps taken per day is 10395
 
+## Question 2: What is the average daily activity pattern?
+```{r dailyaverage, echo=TRUE}
+intervals <- group_by(activities, interval)
+avg <- summarize(intervals, steps = mean(steps, na.rm=TRUE))
+plot(avg$interval, avg$steps, type="l", xlab="5-min interval", ylab="Average Steps")
+summary(avg)
+filter(avg,steps==max(steps))
+```
+The "5-minute interval", on average across all the days containing the maximum number of steps is "835": hh:mm 13:55.
 
-## What is mean total number of steps taken per day?
+## Question 3: Imputing missing values
+```{r missingval1, echo=TRUE}
+summary(activities)
+```
+NA values are 2304
 
+```{r missingval2-3, echo=TRUE}
+activities$steps[is.na(activities$steps)] <- mean(avg$steps)
+```
+NA values are now substituted by mean steps value per day
 
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
+```{r missingval4, echo=TRUE}
+SummawNA <- summarize(days, steps = sum(steps))
+SummawNA$daynum <- as.numeric(SummawNA$date)
+barplot(SummawNA$steps, SummawNA$daynum, names.arg= SummawNA$daynum, ylab="Total steps number per day", xlab="day number")
+summary(SummawNA)
+```
+Mean total number of steps taken per day (including NAs) is 10765;
+Median total number of steps taken per day (including NAs) is 10766
+Both Mean and Median values are greater than without NAs
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+No time...
